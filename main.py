@@ -3,8 +3,9 @@ import sys
 import math
 from climber_config import (HEAD_RADIUS, HEAD_COLOR, UPPER_BODY_RADIUS, LOWER_BODY_RADIUS,
                             BODY_COLOR, BODY_DISTANCE, HAND_RADIUS, HAND_COLOR, HAND_BODY_MAX_DISTANCE,
-                            FEET_SIZE, FEET_COLOR, FEET_BODY_MAX_DISTANCE, STRING_COLOR, STRING_THICKNESS)
-from board_config import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR
+                            FEET_SIZE, FEET_COLOR, FEET_BODY_MAX_DISTANCE, BODY_STRING_COLOR, BODY_STRING_THICKNESS,
+                            ARM_STRING_COLOR, ARM_STRING_THICKNESS, LEG_STRING_COLOR, LEG_STRING_THICKNESS)
+from board_config import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR, BACKGROUND_IMAGE_PATH
 
 # Initialize pygame
 pygame.init()
@@ -12,6 +13,13 @@ pygame.init()
 # Set up the screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Ragdoll Mockup")
+
+# Load and fit the background image if provided
+background_image = None
+if BACKGROUND_IMAGE_PATH:
+    background_image = pygame.image.load(BACKGROUND_IMAGE_PATH)
+    background_image = pygame.transform.scale(
+        background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Initial positions
 upper_body_pos = [SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - BODY_DISTANCE // 2]
@@ -141,11 +149,14 @@ while running:
                 UPPER_BODY_RADIUS - HEAD_RADIUS]
 
     # Drawing
-    screen.fill(BACKGROUND_COLOR)
+    if background_image:
+        screen.blit(background_image, (0, 0))
+    else:
+        screen.fill(BACKGROUND_COLOR)
 
     # Draw the line connecting upper and lower body
-    pygame.draw.line(screen, STRING_COLOR, upper_body_pos,
-                     lower_body_pos, STRING_THICKNESS)
+    pygame.draw.line(screen, BODY_STRING_COLOR, upper_body_pos,
+                     lower_body_pos, BODY_STRING_THICKNESS)
 
     # Draw the upper and lower body
     pygame.draw.circle(screen, BODY_COLOR, (int(
@@ -154,14 +165,14 @@ while running:
         lower_body_pos[0]), int(lower_body_pos[1])), LOWER_BODY_RADIUS)
 
     # Draw the limbs connecting to the body
-    pygame.draw.line(screen, STRING_COLOR, left_arm_pos,
-                     upper_body_pos, STRING_THICKNESS)
-    pygame.draw.line(screen, STRING_COLOR, right_arm_pos,
-                     upper_body_pos, STRING_THICKNESS)
-    pygame.draw.line(screen, STRING_COLOR, left_leg_pos,
-                     lower_body_pos, STRING_THICKNESS)
-    pygame.draw.line(screen, STRING_COLOR, right_leg_pos,
-                     lower_body_pos, STRING_THICKNESS)
+    pygame.draw.line(screen, ARM_STRING_COLOR, left_arm_pos,
+                     upper_body_pos, ARM_STRING_THICKNESS)
+    pygame.draw.line(screen, ARM_STRING_COLOR, right_arm_pos,
+                     upper_body_pos, ARM_STRING_THICKNESS)
+    pygame.draw.line(screen, LEG_STRING_COLOR, left_leg_pos,
+                     lower_body_pos, LEG_STRING_THICKNESS)
+    pygame.draw.line(screen, LEG_STRING_COLOR, right_leg_pos,
+                     lower_body_pos, LEG_STRING_THICKNESS)
 
     # Draw the limbs
     pygame.draw.circle(screen, HAND_COLOR, (int(
