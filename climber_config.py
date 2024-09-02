@@ -1,12 +1,12 @@
 # climber_config.py
 
 # Head properties
-HEAD_RADIUS = 20
+HEAD_RADIUS = 18
 HEAD_COLOR = (200, 100, 50)
 
 # Body properties
-UPPER_BODY_RADIUS = 15
-LOWER_BODY_RADIUS = 15
+UPPER_BODY_RADIUS = 12
+LOWER_BODY_RADIUS = 12
 BODY_COLOR = (100, 100, 100)
 BODY_DISTANCE = 80  # Fixed distance between upper and lower body circles
 

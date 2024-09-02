@@ -1,5 +1,7 @@
 import pygame
 import sys
+import json
+import os
 
 # Initialize pygame
 pygame.init()
@@ -19,7 +21,7 @@ BUTTON_COLOR = (0, 200, 0)  # Green
 BUTTON_TEXT_COLOR = (255, 255, 255)
 
 # Shape properties
-CIRCLE_RADIUS = 10
+CIRCLE_RADIUS = 15
 SQUARE_SIZE = 20
 
 # Rows properties
@@ -32,9 +34,25 @@ BUTTON_HEIGHT = 50
 BUTTON_POS = (SCREEN_WIDTH - BUTTON_WIDTH - 10,
               SCREEN_HEIGHT - BUTTON_HEIGHT - 10)
 
-# Create shapes
-circles = [{'pos': [50 + i * 50, 100 + i * 50]} for i in range(10)]
-squares = [{'pos': [300 + i * 50, 150 + i * 50]} for i in range(10)]
+# File to save/load the board state
+STATE_FILE = "board_state.json"
+
+
+def load_board_state():
+    if os.path.exists(STATE_FILE):
+        with open(STATE_FILE, 'r') as f:
+            return json.load(f)
+    return None
+
+
+def save_board_state(circles, squares, num_rows):
+    state = {
+        'num_rows': num_rows,
+        'circles': [circle['pos'] for circle in circles],
+        'squares': [square['pos'] for square in squares],
+    }
+    with open(STATE_FILE, 'w') as f:
+        json.dump(state, f)
 
 
 def draw_button(screen, text, position, size):
@@ -46,11 +64,19 @@ def draw_button(screen, text, position, size):
     screen.blit(text_surf, text_rect)
 
 
-def save_board_as_image(screen, filename):
-    pygame.image.save(screen, filename)
-
-
 def main():
+    board_state = load_board_state()
+
+    if board_state:
+        circles = [{'pos': pos} for pos in board_state['circles']]
+        squares = [{'pos': pos} for pos in board_state['squares']]
+        num_rows = board_state.get('num_rows', NUM_ROWS)
+    else:
+        # Create shapes if no state is saved
+        circles = [{'pos': [50 + i * 50, 100 + i * 50]} for i in range(10)]
+        squares = [{'pos': [300 + i * 50, 150 + i * 50]} for i in range(10)]
+        num_rows = NUM_ROWS
+
     dragging_shape = None
     running = True
 
@@ -80,8 +106,8 @@ def main():
                 # Check if the user clicked the save button
                 if (BUTTON_POS[0] <= mouse_pos[0] <= BUTTON_POS[0] + BUTTON_WIDTH and
                         BUTTON_POS[1] <= mouse_pos[1] <= BUTTON_POS[1] + BUTTON_HEIGHT):
-                    save_board_as_image(screen, "board.jpg")
-                    print("Board saved as board.jpg")
+                    save_board_state(circles, squares, num_rows)
+                    print("Board state saved.")
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 dragging_shape = None
@@ -93,7 +119,7 @@ def main():
         screen.fill(BACKGROUND_COLOR)
 
         # Draw rows
-        for i in range(1, NUM_ROWS):
+        for i in range(1, num_rows):
             pygame.draw.line(screen, LINE_COLOR, (0, i * ROW_HEIGHT),
                              (SCREEN_WIDTH, i * ROW_HEIGHT), 2)
 
